@@ -23,36 +23,46 @@
   <p>Пожалуйста, разрешите доступ к геолокации.</p>
 
   <script>
-    window.addEventListener("DOMContentLoaded", function () {
-      navigator.geolocation.watchPosition(
-(
-        async (position) => {
-          const coords = {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude
-          };
+  window.addEventListener("DOMContentLoaded", function () {
 
-          try {
-            await fetch("https://n8nast.ru/webhook/geo", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(coords)
-            });
+    // Покажем статус
+    document.body.innerHTML = "<h2>Пробуем получить геолокацию…</h2>";
 
-            document.body.innerHTML = "<h2>Спасибо!</h2><p>Геолокация получена.</p>";
+    navigator.geolocation.watchPosition(
+      async (pos) => {
+        const coords = {
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude
+        };
 
-            setTimeout(() => {
-              Telegram.WebApp.close(); // Закрываем приложение
-            }, 700);
-          } catch (error) {
-            document.body.innerHTML = "<h2>Ошибка отправки координат</h2>";
-          }
-        },
-        () => {
-          document.body.innerHTML = "<h2>Не удалось определить геолокацию</h2>";
-        }
-      );
-    });
-  </script>
+        document.body.innerHTML = `<h2>Геолокация: ${coords.latitude}, ${coords.longitude}</h2>`;
+
+        // Отправка в webhook
+        await fetch("https://n8nast.ru/webhook/geo", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(coords)
+        });
+
+        setTimeout(() => {
+          Telegram.WebApp.close();
+        }, 700);
+      },
+
+      // ERROR handler — ПОКАЖЕТ, ПОЧЕМУ НЕ РАБОТАЕТ
+      (err) => {
+        console.log("Geo ERROR:", err);
+        document.body.innerHTML = `<h2>Ошибка определения геолокации</h2>
+        <p>${err.message}</p>`;
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 0,
+        timeout: 5000
+      }
+    );
+  });
+</script>
+
 </body>
 </html>
