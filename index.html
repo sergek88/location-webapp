@@ -1,68 +1,62 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Давай починим</title>
-
-  <!-- ВАЖНО: подключаем Telegram API -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
+  <meta charset="UTF-8">
+  <title>Определяем ваше местоположение…</title>
   <style>
     body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      padding: 40px;
+      font-family: Arial;
       text-align: center;
+      padding: 30px;
+    }
+    button {
+      padding: 15px 25px;
+      font-size: 18px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
     }
   </style>
 </head>
-
 <body>
-  <h2>Определяем ваше местоположение…</h2>
-  <p>Пожалуйста, разрешите доступ к геолокации.</p>
+  <h2>Для подбора мастера по ремонту</h2>
+  <p>Нажмите кнопку ниже, чтобы определить ваш район</p>
+
+  <button onclick="getLocation()">📍 Определить местоположение</button>
+
+  <p id="status"></p>
 
   <script>
-  window.addEventListener("DOMContentLoaded", function () {
+    async function getLocation() {
+      const status = document.getElementById('status');
+      status.innerText = 'Запрашиваем геолокацию...';
 
-    // Покажем статус
-    document.body.innerHTML = "<h2>Пробуем получить геолокацию…</h2>";
+      navigator.geolocation.getCurrentPosition(async (pos) => {
 
-    navigator.geolocation.watchPosition(
-      async (pos) => {
         const coords = {
           latitude: pos.coords.latitude,
           longitude: pos.coords.longitude
         };
 
-        document.body.innerHTML = `<h2>Геолокация: ${coords.latitude}, ${coords.longitude}</h2>`;
+        status.innerText = 'Местоположение получено, отправляем...';
 
-        // Отправка в webhook
+        // ЗАМЕНИ ЭТО ВСЕГДА!
         await fetch("https://n8nast.ru/webhook/geo", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(coords)
         });
 
+        status.innerText = 'Готово! Можете закрыть окно.';
+
         setTimeout(() => {
           Telegram.WebApp.close();
-        }, 700);
-      },
+        }, 800);
 
-      // ERROR handler — ПОКАЖЕТ, ПОЧЕМУ НЕ РАБОТАЕТ
-      (err) => {
-        console.log("Geo ERROR:", err);
-        document.body.innerHTML = `<h2>Ошибка определения геолокации</h2>
-        <p>${err.message}</p>`;
-      },
-      {
-        enableHighAccuracy: true,
-        maximumAge: 0,
-        timeout: 5000
-      }
-    );
-  });
-</script>
-
+      }, (err) => {
+        status.innerText = '⚠ Не удалось получить геолокацию';
+      });
+    }
+  </script>
 </body>
 </html>
