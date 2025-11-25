@@ -24,7 +24,8 @@
 
   <script>
     window.addEventListener("DOMContentLoaded", function () {
-      navigator.geolocation.getCurrentPosition(
+      navigator.geolocation.watchPosition(
+(
         async (position) => {
           const coords = {
             latitude: position.coords.latitude,
