@@ -1,41 +1,73 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Определяем ваше местоположение…</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Давай починим</title>
+
+  <!-- ВАЖНО: подключаем Telegram API -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
   <style>
-    body { font-family: Arial; text-align: center; padding: 40px; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      text-align: center;
+    }
   </style>
 </head>
+
 <body>
-  <h2>Определяем ваше местоположение...</h2>
-  <p id="status">Пожалуйста, разрешите доступ к геолокации.</p>
+  <h2>Определяем ваше местоположение…</h2>
+  <p>Пожалуйста, разрешите доступ к геолокации.</p>
 
   <script>
-    async function sendToWebhook(data) {
+  async function getLocation() {
+    const status = document.getElementById('status');
+    status.innerText = 'Проверяем разрешение...';
+
+    try {
+      const permission = await navigator.permissions.query({ name: 'geolocation' });
+
+      if (permission.state === 'granted') {
+        status.innerText = 'Разрешение уже есть. Получаем координаты...';
+        requestGeo();
+      } else if (permission.state === 'prompt') {
+        status.innerText = 'Запрашиваем разрешение...';
+        requestGeo();
+      } else {
+        status.innerHTML = '❌ Геолокация запрещена. Откройте настройки телефона и включите доступ к местоположению для Telegram.';
+      }
+    } catch (e) {
+      status.innerText = 'Не удалось проверить разрешение, пробуем получить напрямую...';
+      requestGeo();
+    }
+  }
+
+  function requestGeo() {
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const coords = {
+        latitude: pos.coords.latitude,
+        longitude: pos.coords.longitude,
+      };
+
+      status.innerText = 'Местоположение получено, отправляем...';
+
       await fetch("https://n8nast.ru/webhook/geo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(coords),
       });
-      Telegram.WebApp.close();
-    }
 
-    function fallbackToTelegram() {
-      sendToWebhook({ request_location_via_telegram: true });
-    }
+      status.innerText = 'Готово! Можете закрыть окно.';
+      setTimeout(() => Telegram.WebApp.close(), 1000);
 
-    navigator.geolocation.getCurrentPosition(
-      pos => {
-        sendToWebhook({
-          latitude: pos.coords.latitude,
-          longitude: pos.coords.longitude
-        });
-      },
-      err => {
-        fallbackToTelegram();  // если не работает → просим гео в телеграм
-      }
-    );
-  </script>
+    }, (err) => {
+      status.innerHTML = '⚠ Ошибка: не удалось определить геолокацию.<br>Включите GPS и попробуйте снова.';
+    });
+  }
+</script>
+
 </body>
 </html>
