@@ -23,52 +23,36 @@
   <p>Пожалуйста, разрешите доступ к геолокации.</p>
 
   <script>
-  async function getLocation() {
-    const status = document.getElementById('status');
-    status.innerText = 'Проверяем разрешение...';
-
-    try {
-      const permission = await navigator.permissions.query({ name: 'geolocation' });
-
-      if (permission.state === 'granted') {
-        status.innerText = 'Разрешение уже есть. Получаем координаты...';
-        requestGeo();
-      } else if (permission.state === 'prompt') {
-        status.innerText = 'Запрашиваем разрешение...';
-        requestGeo();
-      } else {
-        status.innerHTML = '❌ Геолокация запрещена. Откройте настройки телефона и включите доступ к местоположению для Telegram.';
-      }
-    } catch (e) {
-      status.innerText = 'Не удалось проверить разрешение, пробуем получить напрямую...';
-      requestGeo();
-    }
-  }
-
-  function requestGeo() {
-    navigator.geolocation.getCurrentPosition(async (pos) => {
+  // Запрос геолокации
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
       const coords = {
         latitude: pos.coords.latitude,
-        longitude: pos.coords.longitude,
+        longitude: pos.coords.longitude
       };
 
-      status.innerText = 'Местоположение получено, отправляем...';
+      try {
+        await fetch("https://n8nast.ru/webhook-test/geo", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(coords)
+        });
 
-      await fetch("https://n8nast.ru/webhook-test/geo", {
-, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(coords),
-      });
-
-      status.innerText = 'Готово! Можете закрыть окно.';
-      setTimeout(() => Telegram.WebApp.close(), 1000);
-
-    }, (err) => {
-      status.innerHTML = '⚠ Ошибка: не удалось определить геолокацию.<br>Включите GPS и попробуйте снова.';
-    });
-  }
+        // После отправки — закрываем WebApp
+        Telegram.WebApp.close();
+      } catch (err) {
+        console.error(err);
+        document.body.innerHTML = "<h2>Ошибка отправки данных.</h2>";
+      }
+    },
+    (err) => {
+      document.body.innerHTML = "<h2>Не удалось определить местоположение.</h2>";
+    }
+  );
 </script>
+
 
 </body>
 </html>
