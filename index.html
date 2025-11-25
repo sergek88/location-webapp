@@ -1,40 +1,57 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <meta charset="UTF-8" />
-  <title>Определение геолокации…</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Давай починим</title>
+
+  <!-- ВАЖНО: подключаем Telegram API -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      text-align: center;
+    }
+  </style>
 </head>
-<body style="font-family: Arial; text-align: center; padding: 40px;">
+
+<body>
   <h2>Определяем ваше местоположение…</h2>
   <p>Пожалуйста, разрешите доступ к геолокации.</p>
 
   <script>
-  // Запрос геолокации
-  navigator.geolocation.getCurrentPosition(async (pos) => {
-    const coords = {
-      latitude: pos.coords.latitude,
-      longitude: pos.coords.longitude
-    };
+    window.addEventListener("DOMContentLoaded", function () {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const coords = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          };
 
-    // Отправляем координаты на n8n webhook
-    await fetch("https://n8nast.ru/webhook/geo", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(coords)
+          try {
+            await fetch("https://n8nast.ru/webhook/geo", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(coords)
+            });
+
+            document.body.innerHTML = "<h2>Спасибо!</h2><p>Геолокация получена.</p>";
+
+            setTimeout(() => {
+              Telegram.WebApp.close(); // Закрываем приложение
+            }, 700);
+          } catch (error) {
+            document.body.innerHTML = "<h2>Ошибка отправки координат</h2>";
+          }
+        },
+        () => {
+          document.body.innerHTML = "<h2>Не удалось определить геолокацию</h2>";
+        }
+      );
     });
-
-    // Сообщение пользователю
-    document.body.innerHTML = "<h2>Спасибо!</h2><p>Геолокация получена.</p>";
-
-    // Закрываем WebApp (Telegram)
-    if (window.Telegram) {
-      Telegram.WebApp.close();
-    }
-  }, () => {
-    document.body.innerHTML = "<h2>Не удалось определить местоположение.</h2>";
-  });
-</script>
-  
+  </script>
 </body>
 </html>
