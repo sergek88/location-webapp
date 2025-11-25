@@ -18,7 +18,7 @@
     };
 
     // Отправляем координаты на n8n webhook
-    await fetch("https://ТВОЙ_ДОМЕН/webhook/geo", {
+    await fetch("https://n8nast.ru/webhook/geo", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(coords)
