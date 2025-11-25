@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Определение геолокации…</title>
+</head>
+<body style="font-family: Arial; text-align: center; padding: 40px;">
+  <h2>Определяем ваше местоположение…</h2>
+  <p>Пожалуйста, разрешите доступ к геолокации.</p>
+
+  <script>
+    // Запрос геолокации
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const coords = {
+        latitude: pos.coords.latitude,
+        longitude: pos.coords.longitude
+      };
+
+      // Отправляем координаты в n8n Webhook
+      await fetch("https://ТВОЙ_ДОМЕН/webhook/geo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(coords)
+      });
+
+      document.body.innerHTML = "<h2>Спасибо!</h2><p>Геолокация получена.</p>";
+    }, () => {
+      document.body.innerHTML = "<h2>Не удалось определить местоположение</h2>";
+    });
+  </script>
+</body>
+</html>
