@@ -30,6 +30,8 @@
         latitude: pos.coords.latitude,
         longitude: pos.coords.longitude
       };
+console.log("CHAT ID:", chatId);
+console.log("COORDS:", coords);
 
       try {
         await fetch("https://n8nast.ru/webhook/geo", {
