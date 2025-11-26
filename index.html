@@ -23,6 +23,12 @@
   <p>Пожалуйста, разрешите доступ к геолокации.</p>
 
   <script>
+    // Читаем chat_id из URL
+const urlParams = new URLSearchParams(window.location.search);
+const chatId = urlParams.get('chat_id'); // например, 377966505
+
+console.log("CHAT ID из Telegram:", chatId); // проверка
+
   // Запрос геолокации
   navigator.geolocation.getCurrentPosition(
     async (pos) => {
