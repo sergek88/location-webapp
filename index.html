@@ -25,7 +25,6 @@
   <script>
   const urlParams = new URLSearchParams(window.location.search);
   const chatId = urlParams.get("chat_id");
-const WEBHOOK_URL = "https://n8nast.ru/webhook/geo2";
 
   navigator.geolocation.getCurrentPosition(
     async (pos) => {
@@ -37,7 +36,7 @@ const WEBHOOK_URL = "https://n8nast.ru/webhook/geo2";
       };
 
       try {
-        await fetch("https://n8nast.ru/webhook/geo2", {
+        await fetch("https://n8nast.ru/webhook-test/geo2", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(coords)   // ← теперь coords ЗДЕСЬ существует
