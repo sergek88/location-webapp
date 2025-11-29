@@ -25,6 +25,7 @@
   <script>
   const urlParams = new URLSearchParams(window.location.search);
   const chatId = urlParams.get("chat_id");
+const WEBHOOK_URL = "https://n8nast.ru/webhook/geo2";
 
   navigator.geolocation.getCurrentPosition(
     async (pos) => {
