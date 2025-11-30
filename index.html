@@ -37,7 +37,7 @@
 
       try {
         await fetch("https://n8nast.ru/webhook/geo", {
-          method: "POST",
+          method: "get",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(coords)   // ← теперь coords ЗДЕСЬ существует
         });
