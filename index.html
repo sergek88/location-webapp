@@ -26,28 +26,20 @@
   const urlParams = new URLSearchParams(window.location.search);
   const chatId = urlParams.get("chat_id");
 
-  // 🧠 Проверяем: работаем в тесте или в продакшене?
-  // Если есть параметр `test=1` → отправляем на /webhook-test/
-  // Иначе — отправляем на /webhook/
-  const isTest = urlParams.get("test") === "1";
-
-  const BASE_URL = isTest
-    ? "https://n8nast.ru/webhook-test/geo"
-    : "https://n8nast.ru/webhook/geo";
-
   navigator.geolocation.getCurrentPosition(
     async (pos) => {
+      // 🔹 coords рождаются здесь — внутри колбэка!
       const coords = {
         chat_id: chatId,
         latitude: pos.coords.latitude,
-        longitude: pos.coords.longitude,
+        longitude: pos.coords.longitude
       };
 
       try {
-        await fetch(BASE_URL, {
+        await fetch("https://n8nast.ru/webhook-test/geo", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(coords),
+          body: JSON.stringify(coords)   // ← теперь coords ЗДЕСЬ существует
         });
 
         Telegram.WebApp.close();
@@ -61,7 +53,6 @@
     }
   );
 </script>
-
 
 
 </body>
