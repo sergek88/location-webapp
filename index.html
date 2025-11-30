@@ -27,7 +27,8 @@
   <p>Пожалуйста, разрешите доступ к геолокации.</p>
 
   <script>
-  const chatId = Telegram.WebApp.initDataUnsafe?.user?.id || "";
+  const urlParams = new URLSearchParams(window.location.search);
+  const chatId = urlParams.get("chat_id");
 
   navigator.geolocation.getCurrentPosition(
     async (pos) => {
@@ -49,7 +50,6 @@
       } catch (err) {
         console.error(err);
         document.body.innerHTML = "<h2>Ошибка отправки данных.</h2>";
-}
       }
     },
     () => {
