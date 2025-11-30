@@ -23,24 +23,26 @@
   <p>Пожалуйста, разрешите доступ к геолокации.</p>
 
   <script>
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const coords = {
-          latitude: pos.coords.latitude,
-          longitude: pos.coords.longitude
-        };
+const tg = Telegram.WebApp;
 
-        // 🟢 ОТПРАВЛЯЕМ ПРЯМО В n8n Telegram Trigger (ничего больше не надо!)
-        Telegram.WebApp.sendData(JSON.stringify(coords));
+navigator.geolocation.getCurrentPosition(
+  async (pos) => {
 
-        // закрываем страницу
-        Telegram.WebApp.close();
-      },
-      () => {
-        document.body.innerHTML = "<h2>Не удалось получить местоположение.</h2>";
-      }
-    );
-  </script>
+    // Отправляем данные скрыто (как текст не покажется!)
+    tg.sendData(JSON.stringify({
+      lat: pos.coords.latitude,
+      lon: pos.coords.longitude
+    }));
+
+    tg.close(); // Закрываем WebApp
+  },
+  () => {
+    tg.sendData(JSON.stringify({ error: "location_denied" }));
+    tg.close();
+  }
+);
+</script>
+
 
 </body>
 </html>
