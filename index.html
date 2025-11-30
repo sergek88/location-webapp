@@ -47,8 +47,9 @@
 
         Telegram.WebApp.close();
       } catch (err) {
-        console.error(err);
-        document.body.innerHTML = "<h2>Ошибка отправки данных.</h2>";
+  console.error("Ошибка, но закрываем WebApp:", err);
+  Telegram.WebApp.close();   // Закрываем всё равно
+}
       }
     },
     () => {
