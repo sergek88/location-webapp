@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Регистрация мастера — Давай починим</title>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+    }
+    input, textarea, select, button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #3390ec;
+      color: #fff;
+      border: none;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Регистрация мастера</h2>
+
+  <label>Ваше имя / название сервиса</label>
+  <input id="name">
+
+  <label>Телефон</label>
+  <input id="phone">
+
+  <label>Адрес</label>
+  <input id="address">
+
+  <label>Какие услуги предоставляете?</label>
+  <textarea id="services"></textarea>
+
+  <label>Тариф</label>
+  <select id="tariff">
+    <option value="free">Free</option>
+    <option value="paid">Paid</option>
+  </select>
+
+  <button onclick="submitForm()">Отправить</button>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const telegramId = urlParams.get("tg_id");
+
+    async function submitForm() {
+      const data = {
+        telegram_id: telegramId,
+        name: document.getElementById("name").value,
+        phone: document.getElementById("phone").value,
+        address: document.getElementById("address").value,
+        services: document.getElementById("services").value,
+        tariff: document.getElementById("tariff").value
+      };
+
+      try {
+        await fetch("https://n8nast.ru/webhook/master-registration", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        tg.close();
+      } catch (err) {
+        alert("Ошибка отправки данных");
+      }
+    }
+  </script>
+
+</body>
+</html>
