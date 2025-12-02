@@ -8,25 +8,63 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
+    :root {
+      /* Светлая тема */
+      --bg: #ffffff;
+      --text: #000000;
+      --input-bg: #f4f4f5;
+      --input-border: #cccccc;
+      --button-bg: #3390ec;
+      --button-text: #ffffff;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        /* Тёмная тема */
+        --bg: #1c1c1e;
+        --text: #f2f2f7;
+        --input-bg: #2c2c2e;
+        --input-border: #3a3a3c;
+        --button-bg: #3390ec;
+        --button-text: #ffffff;
+      }
+    }
+
     body {
       margin: 0;
       padding: 20px;
       font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
     }
+
     input, textarea, select, button {
       width: 100%;
       margin-top: 10px;
       padding: 12px;
       font-size: 16px;
       border-radius: 8px;
-      border: 1px solid #ccc;
+      box-sizing: border-box;
     }
+
+    input, textarea, select {
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      color: var(--text);
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
     button {
-      background: #3390ec;
-      color: #fff;
-      border: none;
       margin-top: 20px;
+      background: var(--button-bg);
+      color: var(--button-text);
+      border: none;
       cursor: pointer;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -51,39 +89,3 @@
     <option value="free">Free</option>
     <option value="paid">Paid</option>
   </select>
-
-  <button onclick="submitForm()">Отправить</button>
-
-  <script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const telegramId = urlParams.get("tg_id");
-
-    async function submitForm() {
-      const data = {
-        telegram_id: telegramId,
-        name: document.getElementById("name").value,
-        phone: document.getElementById("phone").value,
-        address: document.getElementById("address").value,
-        services: document.getElementById("services").value,
-        tariff: document.getElementById("tariff").value
-      };
-
-      try {
-        await fetch("https://n8nast.ru/webhook/master-registration", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
-
-        tg.close();
-      } catch (err) {
-        alert("Ошибка отправки данных");
-      }
-    }
-  </script>
-
-</body>
-</html>
