@@ -9,48 +9,83 @@
 
   <style>
     :root {
-      /* Светлая тема */
       --bg: #ffffff;
-      --text: #000000;
-      --input-bg: #f4f4f5;
-      --input-border: #cccccc;
-      --button-bg: #3390ec;
+      --text: #111111;
+      --subtext: #555555;
+      --card-bg: #f7f7f8;
+      --input-bg: #ffffff;
+      --input-border: #d0d0d5;
+      --button-bg: #4a90e2;
       --button-text: #ffffff;
+      --error: #ff4d4f;
     }
 
     @media (prefers-color-scheme: dark) {
       :root {
-        /* Тёмная тема */
         --bg: #1c1c1e;
         --text: #f2f2f7;
-        --input-bg: #2c2c2e;
-        --input-border: #3a3a3c;
-        --button-bg: #3390ec;
+        --subtext: #a1a1aa;
+        --card-bg: #2c2c2e;
+        --input-bg: #3a3a3c;
+        --input-border: #4a4a4c;
+        --button-bg: #4a90e2;
         --button-text: #ffffff;
+        --error: #ff6b6b;
       }
     }
 
     body {
       margin: 0;
       padding: 20px;
-      font-family: Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
     }
 
-    input, textarea, select, button {
-      width: 100%;
-      margin-top: 10px;
-      padding: 12px;
-      font-size: 16px;
-      border-radius: 8px;
-      box-sizing: border-box;
+    h2 {
+      font-size: 22px;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    p.subtitle {
+      margin-top: 0;
+      margin-bottom: 20px;
+      color: var(--subtext);
+      font-size: 14px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      padding: 18px;
+      border-radius: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      margin-bottom: 6px;
+      font-size: 14px;
+      font-weight: 600;
     }
 
     input, textarea, select {
-      background: var(--input-bg);
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
       border: 1px solid var(--input-border);
+      background: var(--input-bg);
       color: var(--text);
+      font-size: 16px;
+      box-sizing: border-box;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: #4a90e2;
+      outline: none;
     }
 
     textarea {
@@ -58,34 +93,135 @@
       resize: vertical;
     }
 
+    .error-text {
+      color: var(--error);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
     button {
-      margin-top: 20px;
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
       background: var(--button-bg);
       color: var(--button-text);
-      border: none;
+      font-size: 17px;
+      font-weight: 600;
       cursor: pointer;
-      font-weight: bold;
+      margin-top: 20px;
+      transition: opacity 0.25s ease;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .loader {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 14px;
+      color: var(--subtext);
+      display: none;
     }
   </style>
 </head>
 
 <body>
   <h2>Регистрация мастера</h2>
+  <p class="subtitle">Заполните данные о себе, чтобы получать заявки от клиентов</p>
 
-  <label>Ваше имя / название сервиса</label>
-  <input id="name">
+  <div class="card">
+    <label>Ваше имя / название сервиса</label>
+    <input id="name">
 
-  <label>Телефон</label>
-  <input id="phone">
+    <label>Телефон</label>
+    <input id="phone" inputmode="tel" placeholder="+7">
 
-  <label>Адрес</label>
-  <input id="address">
+    <label>Адрес</label>
+    <input id="address">
 
-  <label>Какие услуги предоставляете?</label>
-  <textarea id="services"></textarea>
+    <label>Какие услуги предоставляете?</label>
+    <textarea id="services" placeholder="Например: ремонт холодильников, стиральных машин..."></textarea>
 
-  <label>Тариф</label>
-  <select id="tariff">
-    <option value="free">Free</option>
-    <option value="paid">Paid</option>
-  </select>
+    <label>Тариф</label>
+    <select id="tariff">
+      <option value="free">Free</option>
+      <option value="paid">Paid</option>
+    </select>
+  </div>
+
+  <button id="submitBtn" onclick="submitForm()">Отправить</button>
+
+  <div class="loader" id="loader">Отправка данных…</div>
+
+  <script>
+    const tg = Telegram.WebApp;
+    if (tg) tg.ready();
+
+    const closeApp = () => setTimeout(() => tg.close(), 250);
+
+    const params = new URLSearchParams(window.location.search);
+    const telegramId = params.get("tg_id");
+
+    const loader = document.getElementById("loader");
+    const submitBtn = document.getElementById("submitBtn");
+
+    function showLoader() {
+      loader.style.display = "block";
+      submitBtn.disabled = true;
+    }
+
+    function hideLoader() {
+      loader.style.display = "none";
+      submitBtn.disabled = false;
+    }
+
+    function validate() {
+      let valid = true;
+
+      const fields = ["name", "phone", "address", "services"];
+      fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el.value.trim()) {
+          el.style.borderColor = "var(--error)";
+          valid = false;
+        } else {
+          el.style.borderColor = "var(--input-border)";
+        }
+      });
+
+      return valid;
+    }
+
+    async function submitForm() {
+      if (!validate()) return;
+
+      showLoader();
+
+      const data = {
+        telegram_id: telegramId,
+        name: document.getElementById("name").value.trim(),
+        phone: document.getElementById("phone").value.trim(),
+        address: document.getElementById("address").value.trim(),
+        services: document.getElementById("services").value.trim(),
+        tariff: document.getElementById("tariff").value.trim()
+      };
+
+      try {
+        await fetch("https://n8nast.ru/webhook/master-registration", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+      } catch (err) {
+        console.warn("Ошибка отправки:", err);
+      }
+
+      closeApp();
+    }
+  </script>
+
+</body>
+</html>
