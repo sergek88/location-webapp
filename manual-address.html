@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ввод адреса — Давай починим</title>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+    }
+
+    label {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 20px;
+      background: #3390ec;
+      color: #fff;
+      border: none;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Введите адрес вручную</h2>
+
+  <label>Адрес</label>
+  <input id="address" placeholder="Например: Тюмень, Ленина 25">
+
+  <button onclick="submitAddress()">Отправить</button>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const chatId = urlParams.get("chat_id");
+
+    async function submitAddress() {
+      const address = document.getElementById("address").value.trim();
+
+      if (!address) {
+        alert("Введите адрес");
+        return;
+      }
+
+      const payload = {
+        chat_id: chatId,
+        address: address
+      };
+
+      try {
+        await fetch("https://n8nast.ru/webhook/manual-address", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        tg.close();
+      } catch (err) {
+        console.error(err);
+        tg.close(); // закроем всё равно, чтобы не пугать клиента
+      }
+    }
+  </script>
+
+</body>
+</html>
