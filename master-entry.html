@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Мастер — Давай Починим</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+
+<script>
+  const tg = window.Telegram.WebApp;
+  tg.expand();
+
+  const params = new URLSearchParams(window.location.search);
+  const tgId = params.get("tg_id");
+
+  // Запрашиваем у n8n — зарегистрирован ли мастер
+  fetch(`https://n8nast.ru/webhook/master-exists?tg_id=${tgId}`)
+    .then(r => r.json())
+    .then(data => {
+      if (data.exists === true) {
+        // РЕДАКТИРОВАНИЕ
+        window.location.href =
+          `https://sergek88.github.io/location-webapp/master-edit.html?tg_id=${tgId}`;
+      } else {
+        // РЕГИСТРАЦИЯ
+        window.location.href =
+          `https://sergek88.github.io/location-webapp/master-registration.html?tg_id=${tgId}`;
+      }
+    })
+    .catch(err => {
+      console.error("Ошибка:", err);
+      alert("Ошибка загрузки. Попробуйте позже.");
+    });
+</script>
+
+</body>
+</html>
