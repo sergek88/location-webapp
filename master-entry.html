@@ -20,15 +20,19 @@
 
   async function checkMaster() {
     try {
-      // 2. GET-запрос с tg_id как query-параметром
-      const res = await fetch(
-        `https://n8nast.ru/webhook/master-exists?tg_id=${tgId}`
-      );
+      // 2. POST-запрос на master-exists
+      const res = await fetch("https://n8nast.ru/webhook/master-exists", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ tg_id: tgId })
+      });
 
       const data = await res.json();
       console.log("Ответ n8n:", data);
 
-      // 3. Перенаправляем в нужный WebApp
+      // 3. Перенаправление
       if (data.exists === true) {
         window.location.href =
           `https://sergek88.github.io/location-webapp/master-edit.html?tg_id=${tgId}`;
