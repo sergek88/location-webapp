@@ -23,22 +23,20 @@
 
   async function checkMaster() {
     try {
-      // 2. СДЕЛАЙ ЗАПРОС ТОЛЬКО ТАК
-      const res = await fetch("https://n8nast.ru/webhook/master-exists", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ tg_id: tgId })
-      });
+      // 2. GET-запрос с tg_id как query-параметром
+      const res = await fetch(
+        `https://n8nast.ru/webhook/master-exists?tg_id=${tgId}`,
+        {
+          method: "GET"
+        }
+      );
 
       if (!res.ok) throw new Error("Сервер не ответил");
 
       const data = await res.json();
-
       console.log("Ответ n8n:", data);
 
-      // 3. Выбор страницы
+      // 3. Перенаправление
       if (data.exists === true) {
         window.location.href =
           `https://sergek88.github.io/location-webapp/master-edit.html?tg_id=${tgId}`;
