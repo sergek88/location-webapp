@@ -15,10 +15,22 @@
   const params = new URLSearchParams(window.location.search);
   const tgId = params.get("tg_id");
 
-  // Запрашиваем у n8n — зарегистрирован ли мастер
-  fetch(`https://n8nast.ru/webhook/master-exists?tg_id=${tgId}`)
+  console.log("TG ID:", tgId); // Должно показывать число
+
+  // Проверка существования мастера через POST
+  fetch("https://n8nast.ru/webhook/master-exists", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      tg_id: tgId
+    })
+  })
     .then(r => r.json())
     .then(data => {
+      console.log("Ответ n8n:", data);
+
       if (data.exists === true) {
         // РЕДАКТИРОВАНИЕ
         window.location.href =
@@ -34,6 +46,7 @@
       alert("Ошибка загрузки. Попробуйте позже.");
     });
 </script>
+
 
 </body>
 </html>
