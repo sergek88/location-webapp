@@ -67,13 +67,24 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
+    // Достаём tg_id из URL
     const params = new URLSearchParams(window.location.search);
     const telegramId = params.get("tg_id");
 
-    // ========== 1. Загружаем данные мастера ==========
-    fetch(`https://n8nast.ru/webhook/master-get?tg_id=${telegramId}`)
+    console.log("tg_id из URL:", telegramId);
+
+    //
+    // ======= 1. ЗАГРУЗКА ДАННЫХ МАСТЕРА (POST) =======
+    //
+    fetch("https://n8nast.ru/webhook/master-get", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tg_id: telegramId })
+    })
       .then(r => r.json())
       .then(data => {
+        console.log("Данные мастера:", data);
+
         document.getElementById("name").value = data.name || "";
         document.getElementById("phone").value = data.phone || "";
         document.getElementById("address").value = data.address || "";
@@ -85,7 +96,9 @@
         alert("Ошибка загрузки данных.");
       });
 
-    // ========== 2. Сохраняем изменения ==========
+    //
+    // ======= 2. СОХРАНЕНИЕ ДАННЫХ МАСТЕРА =======
+    //
     function saveData() {
       const payload = {
         telegram_id: telegramId,
@@ -101,8 +114,8 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       })
-      .then(() => tg.close())
-      .catch(() => tg.close());
+        .then(() => tg.close())
+        .catch(() => tg.close());
     }
   </script>
 
