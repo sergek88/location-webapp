@@ -6,9 +6,12 @@
   <title>Мастер — Давай Починим</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
-<body>
 
+<body>
 <script>
+  // ЖДЁМ ПОЛНОЙ ИНИЦИАЛИЗАЦИИ TELEGRAM WEBAPP
+  window.Telegram.WebApp.ready();
+
   const tg = window.Telegram.WebApp;
   tg.expand();
 
@@ -16,11 +19,11 @@
   const params = new URLSearchParams(window.location.search);
   const tgId = params.get("tg_id");
 
-  console.log("tg_id из URL:", tgId);
+  console.log("tg_id:", tgId);
 
   async function checkMaster() {
     try {
-      // 2. POST-запрос на master-exists
+      // 2. СДЕЛАЙ ЗАПРОС ТОЛЬКО ТАК
       const res = await fetch("https://n8nast.ru/webhook/master-exists", {
         method: "POST",
         headers: {
@@ -29,10 +32,13 @@
         body: JSON.stringify({ tg_id: tgId })
       });
 
+      if (!res.ok) throw new Error("Сервер не ответил");
+
       const data = await res.json();
+
       console.log("Ответ n8n:", data);
 
-      // 3. Перенаправление
+      // 3. Выбор страницы
       if (data.exists === true) {
         window.location.href =
           `https://sergek88.github.io/location-webapp/master-edit.html?tg_id=${tgId}`;
@@ -42,13 +48,12 @@
       }
 
     } catch (err) {
-      console.error("Ошибка:", err);
+      console.error(err);
       alert("Ошибка загрузки. Попробуйте позже.");
     }
   }
 
   checkMaster();
 </script>
-
 </body>
 </html>
