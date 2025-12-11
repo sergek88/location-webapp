@@ -74,13 +74,9 @@
     console.log("tg_id из URL:", telegramId);
 
     //
-    // ======= 1. ЗАГРУЗКА ДАННЫХ МАСТЕРА (POST) =======
+    // ======= 1. ЗАГРУЗКА ДАННЫХ МАСТЕРА (GET) =======
     //
-    fetch("https://n8nast.ru/webhook/master-get", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ tg_id: telegramId })
-    })
+    fetch(`https://n8nast.ru/webhook/master-get?tg_id=${telegramId}`)
       .then(r => r.json())
       .then(data => {
         console.log("Данные мастера:", data);
@@ -97,7 +93,7 @@
       });
 
     //
-    // ======= 2. СОХРАНЕНИЕ ДАННЫХ МАСТЕРА =======
+    // ======= 2. СОХРАНЕНИЕ ДАННЫХ (POST) =======
     //
     function saveData() {
       const payload = {
@@ -114,8 +110,8 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       })
-        .then(() => tg.close())
-        .catch(() => tg.close());
+      .then(() => tg.close())
+      .catch(() => tg.close());
     }
   </script>
 
