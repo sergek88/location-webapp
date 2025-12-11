@@ -12,21 +12,23 @@
   const tg = window.Telegram.WebApp;
   tg.expand();
 
+  // 1. Берём tg_id из URL
   const params = new URLSearchParams(window.location.search);
   const tgId = params.get("tg_id");
 
+  console.log("tg_id из URL:", tgId);
+
   async function checkMaster() {
     try {
-      const res = await fetch("https://n8nast.ru/webhook/master-exists", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tg_id: tgId })
-      });
+      // 2. GET-запрос с tg_id как query-параметром
+      const res = await fetch(
+        `https://n8nast.ru/webhook/master-exists?tg_id=${tgId}`
+      );
 
       const data = await res.json();
-
       console.log("Ответ n8n:", data);
 
+      // 3. Перенаправляем в нужный WebApp
       if (data.exists === true) {
         window.location.href =
           `https://sergek88.github.io/location-webapp/master-edit.html?tg_id=${tgId}`;
@@ -34,16 +36,15 @@
         window.location.href =
           `https://sergek88.github.io/location-webapp/master-registration.html?tg_id=${tgId}`;
       }
-    } catch (e) {
-      console.error(e);
+
+    } catch (err) {
+      console.error("Ошибка:", err);
       alert("Ошибка загрузки. Попробуйте позже.");
     }
   }
 
   checkMaster();
 </script>
-
-
 
 </body>
 </html>
