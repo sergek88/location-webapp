@@ -15,37 +15,34 @@
   const params = new URLSearchParams(window.location.search);
   const tgId = params.get("tg_id");
 
-  console.log("TG ID:", tgId); // Должно показывать число
+  async function checkMaster() {
+    try {
+      const res = await fetch("https://n8nast.ru/webhook/master-exists", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tg_id: tgId })
+      });
 
-  // Проверка существования мастера через POST
-  fetch("https://n8nast.ru/webhook/master-exists", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      tg_id: tgId
-    })
-  })
-    .then(r => r.json())
-    .then(data => {
+      const data = await res.json();
+
       console.log("Ответ n8n:", data);
 
       if (data.exists === true) {
-        // РЕДАКТИРОВАНИЕ
         window.location.href =
           `https://sergek88.github.io/location-webapp/master-edit.html?tg_id=${tgId}`;
       } else {
-        // РЕГИСТРАЦИЯ
         window.location.href =
           `https://sergek88.github.io/location-webapp/master-registration.html?tg_id=${tgId}`;
       }
-    })
-    .catch(err => {
-      console.error("Ошибка:", err);
+    } catch (e) {
+      console.error(e);
       alert("Ошибка загрузки. Попробуйте позже.");
-    });
+    }
+  }
+
+  checkMaster();
 </script>
+
 
 
 </body>
